@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sonic Sense — Science Gallery Melbourne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#05060A;
+  --paper:#F2F3F5;
+  --dim:rgba(242,243,245,.60);
+  --dimmer:rgba(242,243,245,.34);
+  --line:rgba(242,243,245,.14);
+  --acid:#D7FF3E;
+  --magenta:#FF2E93;
+  --cyan:#23E5FF;
+  --violet:#8A5BFF;
+  --display:'Archivo','Helvetica Neue',Arial,sans-serif;
+  --body:'Inter','Helvetica Neue',Arial,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);-webkit-font-smoothing:antialiased;overflow:hidden}
+.deck{position:relative;height:100svh;width:100%;overflow:hidden}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
+  padding:clamp(22px,4.5vw,76px);padding-bottom:clamp(64px,8vh,104px);overflow-y:auto;overscroll-behavior:contain;}
+.slide.active{display:flex;animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.inner{width:100%;max-width:1180px;margin:0 auto;position:relative;z-index:2}
+.kicker{font-family:var(--mono);font-size:clamp(10px,1.05vw,12.5px);letter-spacing:.24em;text-transform:uppercase;
+  color:var(--acid);display:flex;align-items:center;gap:12px;margin:0 0 18px;}
+.kicker::before{content:"";width:26px;height:2px;background:var(--acid);flex:none}
+h1{font-family:var(--display);font-weight:900;font-size:clamp(46px,10.5vw,148px);line-height:.86;letter-spacing:-.035em;text-transform:uppercase;margin:0}
+h2{font-family:var(--display);font-weight:900;font-size:clamp(28px,5.2vw,62px);line-height:.95;letter-spacing:-.03em;text-transform:uppercase;margin:0 0 14px}
+h3{font-family:var(--display);font-weight:700;font-size:clamp(15px,1.75vw,20px);letter-spacing:-.01em;margin:0 0 8px}
+p{font-size:clamp(14px,1.45vw,17.5px);line-height:1.62;color:var(--dim);margin:0 0 14px;max-width:72ch}
+p.lead{font-size:clamp(15px,1.9vw,21px);line-height:1.55;color:var(--paper);max-width:58ch}
+strong{color:var(--paper);font-weight:600}
+em{color:var(--acid);font-style:normal;font-weight:600}
+ul{margin:0;padding:0;list-style:none}
+li{font-size:clamp(13px,1.35vw,16px);line-height:1.5;color:var(--dim);padding-left:18px;position:relative;margin-bottom:9px}
+li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:2px;background:var(--acid)}
+li strong{color:var(--paper)}
+.small{font-size:clamp(11px,1.15vw,13px);line-height:1.5;color:var(--dimmer)}
+.grid{display:grid;gap:clamp(14px,1.8vw,26px)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(20px,3.4vw,54px);align-items:center}
+@media (max-width:900px){.g2,.g3,.g5,.split{grid-template-columns:1fr}.slide{padding-bottom:88px}}
+.card{border:1px solid var(--line);border-radius:3px;padding:clamp(14px,1.8vw,20px);
+  background:linear-gradient(160deg,rgba(242,243,245,.045),rgba(242,243,245,.008));position:relative;overflow:hidden}
+.card::after{content:"";position:absolute;left:0;top:0;width:100%;height:2px;background:var(--accent,var(--acid));opacity:.85}
+.card .num{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent,var(--acid));display:block;margin-bottom:10px}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:5px 11px;color:var(--dim)}
+.tag.hot{border-color:var(--magenta);color:var(--magenta)}
+.tag.cy{border-color:var(--cyan);color:var(--cyan)}
+.tag.ac{border-color:var(--acid);color:var(--acid)}
+.rule{height:1px;background:var(--line);margin:clamp(16px,2.4vw,30px) 0}
+.scroll-x{overflow-x:auto}
+.wavewrap{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.wave{position:absolute;left:0;width:200%;height:auto;opacity:.5;animation:drift 11s linear infinite}
+.wave.b{animation-duration:17s;opacity:.3;animation-direction:reverse}
+.wave.c{animation-duration:26s;opacity:.18}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-25%)}}
+.bars{display:flex;align-items:flex-end;gap:3px;height:var(--h,58px);pointer-events:none}
+.bars span{flex:1;min-width:2px;background:currentColor;border-radius:1px;transform-origin:bottom;transform:scaleY(.18);
+  animation:eq 1.5s ease-in-out infinite alternate;opacity:.85}
+@keyframes eq{to{transform:scaleY(1)}}
+.bars.acid{color:var(--acid)} .bars.mag{color:var(--magenta)} .bars.cy{color:var(--cyan)}
+.spectro{display:grid;grid-template-columns:repeat(48,1fr);gap:2px;height:clamp(60px,9vh,100px)}
+.spectro i{display:block;height:100%;border-radius:1px;animation:flick 3.4s steps(1,end) infinite}
+@keyframes flick{0%,100%{opacity:.18}20%{opacity:.85}45%{opacity:.35}70%{opacity:.65}}
+@media (prefers-reduced-motion:reduce){.wave,.bars span,.spectro i,.slide.active{animation:none!important}.bars span{transform:scaleY(.6)}}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--acid);font-weight:600}
+td{font-size:clamp(12px,1.25vw,14.5px);line-height:1.5;color:var(--dim)}
+td.first{color:var(--paper);font-weight:600;white-space:nowrap}
+.brandline{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-family:var(--mono);font-size:clamp(10px,1.1vw,12.5px);
+  letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.dotsep{width:4px;height:4px;border-radius:50%;background:var(--magenta)}
+.chrome{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:14px;
+  padding:12px clamp(16px,4.5vw,40px);background:linear-gradient(to top,var(--ink) 55%,rgba(5,6,10,0))}
+.progress{position:fixed;left:0;top:0;height:2px;background:var(--acid);z-index:21;transition:width .35s ease;width:0}
+.count{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--dimmer);flex:none}
+.count b{color:var(--paper);font-weight:600}
+.dots{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+.dots button{width:16px;height:16px;padding:0;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dots button::after{content:"";width:100%;height:2px;background:var(--line);transition:background .2s}
+.dots button[aria-current="true"]::after{background:var(--acid)}
+.nav{display:flex;gap:7px;flex:none}
+.nav button{width:38px;height:32px;border:1px solid var(--line);background:transparent;color:var(--paper);border-radius:2px;cursor:pointer;font-size:14px;line-height:1;transition:.18s}
+.nav button:hover{border-color:var(--acid);color:var(--acid)}
+.nav button:disabled{opacity:.28;cursor:default}
+.tagline{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);flex:none}
+@media (max-width:700px){.tagline{display:none}.dots{display:none}}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE + BLURB -->
+<section class="slide title-slide">
+  <div class="wavewrap">
+    <svg class="wave" style="top:34%" viewBox="0 0 2400 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 100 q 50 -85 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0" fill="none" stroke="#D7FF3E" stroke-width="2"/>
+    </svg>
+    <svg class="wave b" style="top:40%" viewBox="0 0 2400 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 100 q 75 -120 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0 t 150 0" fill="none" stroke="#FF2E93" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="inner">
+    <div class="brandline">
+      <span>Science Gallery Melbourne</span><i class="dotsep"></i>
+      <span>Schools Program</span><i class="dotsep"></i>
+      <span>Responding to <b style="color:var(--paper)">SENSUAL</b></span>
+    </div>
+    <h1 style="margin-top:20px">Sonic Sense</h1>
+    <p class="lead" style="margin-top:clamp(18px,3vh,30px)">Sonic Sense invites students to rethink what music can be and how it can be experienced. Inspired by SENSUAL, students collect sounds from the gallery and unexpected objects, experiment with Ableton and Max/MSP, and explore how our senses and brains shape perception. They then design an experimental composition for a particular person in mind, considering how their sensory experiences might influence the way they experience and interpret music.</p>
+    <div class="bars acid" style="--h:clamp(38px,6vh,60px);margin-top:clamp(18px,3vh,32px);max-width:560px" data-bars="40"></div>
+    <p class="small" style="margin-top:16px">Double module · 2 &times; 75-minute blocks · Levels 9–10, adaptable for 7–8 and VCE</p>
+  </div>
+</section>
+
+<!-- 2 · WHAT STUDENTS DO -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker">01 — Student experience</div>
+    <h2>What students will do</h2>
+    <p style="margin-bottom:clamp(16px,2.6vh,28px)">Across the two blocks, students move from listening to building — treating every step as both a creative and an investigative act.</p>
+    <div class="grid g5">
+      <div class="card" style="--accent:var(--acid)"><span class="num">01</span><p class="small" style="margin:0"><strong>Explore</strong> how senses shape musical experiences</p></div>
+      <div class="card" style="--accent:var(--cyan)"><span class="num">02</span><p class="small" style="margin:0"><strong>Investigate</strong> how the brain processes sensory information</p></div>
+      <div class="card" style="--accent:var(--magenta)"><span class="num">03</span><p class="small" style="margin:0"><strong>Sample</strong> sounds from the gallery and everyday objects</p></div>
+      <div class="card" style="--accent:var(--violet)"><span class="num">04</span><p class="small" style="margin:0"><strong>Create</strong> compositions using Ableton and Max/MSP</p></div>
+      <div class="card" style="--accent:var(--acid)"><span class="num">05</span><p class="small" style="margin:0"><strong>Design</strong> for a user with different sensory needs</p></div>
+    </div>
+    <div class="rule"></div>
+    <p>Perception isn't fixed — it's built moment to moment from whatever a person's senses hand the brain, and it plays out differently from one person to the next. Students use this as their creative material: not a problem to solve, but a wide field of listening possibilities to design into.</p>
+  </div>
+</section>
+
+<!-- 3 · STRUCTURE -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker">02 — Session structure</div>
+    <h2>Two 75-minute blocks</h2>
+    <div class="grid g2" style="margin-top:clamp(16px,2.6vh,28px)">
+      <div class="card" style="--accent:var(--acid)">
+        <span class="num">BLOCK ONE — LISTEN &amp; COLLECT</span>
+        <ul>
+          <li><strong>Respond to SENSUAL.</strong> Walk the current exhibition and note which works are heard, felt or otherwise sensed rather than just seen.</li>
+          <li><strong>Sample the exhibits.</strong> Contact-mic a kinetic or tactile installation, capture the ambient hum of an immersive environment, record interactive elements as visitors trigger them.</li>
+          <li><strong>Sample the everyday.</strong> Bring the same recording approach to objects in a bag — metal, glass, fabric, the body itself.</li>
+          <li><strong>Talk perception.</strong> A short discussion on how people differ — what's louder, softer, missing or added depending on who's listening.</li>
+        </ul>
+      </div>
+      <div class="card" style="--accent:var(--cyan)">
+        <span class="num">BLOCK TWO — BUILD &amp; DESIGN</span>
+        <ul>
+          <li><strong>Build in Ableton.</strong> Arrange, warp and process the sample library from Block One.</li>
+          <li><strong>Patch in Max for Live.</strong> Add one generative or processing device into the signal chain.</li>
+          <li><strong>Name a person.</strong> Choose one real person and note what matters about how they experience sound.</li>
+          <li><strong>Share and reflect.</strong> Play the piece, talk through the choices made for that person, and note what they noticed.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="spectro" style="margin-top:clamp(14px,2.2vh,22px)" data-spectro="48"></div>
+  </div>
+</section>
+
+<!-- 4 · TECHNOLOGY -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker">03 — Technology required</div>
+    <h2>Software &amp; hardware</h2>
+    <div class="grid g2" style="margin-top:clamp(14px,2.4vh,26px)">
+      <div class="card" style="--accent:var(--acid)">
+        <span class="num">SOFTWARE</span>
+        <ul>
+          <li><strong>Ableton Live</strong> — the core DAW for arranging, warping and processing samples.</li>
+          <li><strong>Max for Live</strong> — patching inside Ableton for generative and custom processing devices.</li>
+        </ul>
+        <p class="small" style="margin:14px 0 0">This is the current software kit. Everything in the two blocks is scoped to run inside Ableton and Max for Live — no other packages required.</p>
+      </div>
+      <div class="card" style="--accent:var(--cyan)">
+        <span class="num">HARDWARE</span>
+        <ul>
+          <li><strong>Laptops</strong> running Ableton Live, one between two students</li>
+          <li><strong>Closed-back headphones</strong>, one pair per student</li>
+          <li><strong>Handheld recorders or phones</strong> for the gallery recording session</li>
+          <li><strong>Contact microphones</strong> for capturing vibration inside objects and installations</li>
+          <li><strong>Audio interface</strong> for mic input and low-latency monitoring</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="--accent:var(--magenta);margin-top:clamp(12px,2vh,22px)">
+      <span class="num">OPTIONAL — HAPTIC ELEMENTS</span>
+      <p class="small" style="margin:0">Where available, wearable haptics let a composition be felt as well as heard. A bass or percussive send from Ableton can drive a device like a <strong>bhaptics TactSuit</strong>, <strong>Woojer Strap</strong> or <strong>SubPac</strong> directly, so vibration becomes another instrument in the mix rather than a separate build.</p>
+      <div class="tags"><span class="tag hot">bhaptics TactSuit</span><span class="tag cy">Woojer Strap</span><span class="tag ac">SubPac</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · CURRICULUM -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker">04 — Alignment</div>
+    <h2>Victorian Curriculum 2.0<br>connections</h2>
+    <p style="margin-bottom:clamp(12px,2vh,22px)">Primary alignment is Music, Levels 9 and 10, with cross-curricular reach. Confirm content description codes against the current VCAA listing when writing unit documentation.</p>
+    <div class="scroll-x">
+      <table>
+        <thead><tr><th>Learning area</th><th>Strand / focus</th><th>Connection in Sonic Sense</th></tr></thead>
+        <tbody>
+          <tr><td class="first">Music 9–10</td><td>Exploring</td><td>Investigating how music communicates ideas and meaning, and how audiences experience it differently</td></tr>
+          <tr><td class="first">Music 9–10</td><td>Developing Practices</td><td>Listening and aural skills, sampling and music technology practice with Ableton and Max/MSP</td></tr>
+          <tr><td class="first">Music 9–10</td><td>Creating</td><td>Exploiting the elements of music and compositional devices to engage a specific person with a stated intent</td></tr>
+          <tr><td class="first">Music 9–10</td><td>Presenting</td><td>Presenting a realised work to an audience, selecting a format appropriate to the person</td></tr>
+          <tr><td class="first">Science 9</td><td>Biological sciences</td><td>How the nervous system coordinates responses to stimuli in the environment</td></tr>
+          <tr><td class="first">Digital Technologies 9–10</td><td>Creating digital solutions</td><td>Designing, implementing and evaluating a solution for a defined user</td></tr>
+          <tr><td class="first">Critical &amp; Creative Thinking</td><td>Questions and possibilities</td><td>Experimental methods, testing assumptions about perception, evaluating creative solutions</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="chrome">
+  <div class="count"><b id="cur">1</b> / <span id="tot">5</span></div>
+  <div class="dots" id="dots"></div>
+  <span class="tagline">← → to navigate</span>
+  <div class="nav">
+    <button id="prev" aria-label="Previous slide">&#8592;</button>
+    <button id="next" aria-label="Next slide">&#8594;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0;
+  var dots = document.getElementById('dots');
+  var cur = document.getElementById('cur');
+  var tot = document.getElementById('tot');
+  var bar = document.getElementById('progress');
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+  tot.textContent = slides.length;
+
+  document.querySelectorAll('[data-bars]').forEach(function(el){
+    var n = parseInt(el.getAttribute('data-bars'),10) || 32;
+    var f = document.createDocumentFragment();
+    for(var k=0;k<n;k++){
+      var s = document.createElement('span');
+      s.style.animationDelay = (Math.random()*1.5).toFixed(2)+'s';
+      s.style.animationDuration = (0.7+Math.random()*1.4).toFixed(2)+'s';
+      f.appendChild(s);
+    }
+    el.appendChild(f);
+  });
+
+  var palette = ['#D7FF3E','#23E5FF','#FF2E93','#8A5BFF'];
+  document.querySelectorAll('[data-spectro]').forEach(function(el){
+    var n = parseInt(el.getAttribute('data-spectro'),10) || 48;
+    var f = document.createDocumentFragment();
+    for(var k=0;k<n;k++){
+      var s = document.createElement('i');
+      s.style.background = palette[k % palette.length];
+      s.style.animationDelay = (Math.random()*3.4).toFixed(2)+'s';
+      s.style.opacity = (0.15+Math.random()*0.6).toFixed(2);
+      f.appendChild(s);
+    }
+    el.appendChild(f);
+  });
+
+  slides.forEach(function(_,k){
+    var b = document.createElement('button');
+    b.setAttribute('aria-label','Go to slide '+(k+1));
+    b.addEventListener('click',function(){ go(k); });
+    dots.appendChild(b);
+  });
+
+  function go(n){
+    i = Math.max(0, Math.min(slides.length-1, n));
+    slides.forEach(function(s,k){ s.classList.toggle('active', k===i); });
+    Array.prototype.forEach.call(dots.children,function(d,k){
+      d.setAttribute('aria-current', k===i ? 'true' : 'false');
+    });
+    cur.textContent = i+1;
+    bar.style.width = ((i+1)/slides.length*100)+'%';
+    prev.disabled = i===0;
+    next.disabled = i===slides.length-1;
+    slides[i].scrollTop = 0;
+  }
+
+  prev.addEventListener('click',function(){ go(i-1); });
+  next.addEventListener('click',function(){ go(i+1); });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ') { e.preventDefault(); go(i+1); }
+    if(e.key==='ArrowLeft'||e.key==='PageUp') { e.preventDefault(); go(i-1); }
+    if(e.key==='Home') go(0);
+    if(e.key==='End') go(slides.length-1);
+  });
+
+  var x0=null, y0=null;
+  document.addEventListener('touchstart',function(e){ x0=e.touches[0].clientX; y0=e.touches[0].clientY; },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(x0===null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    var dy = e.changedTouches[0].clientY - y0;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){ go(dx<0 ? i+1 : i-1); }
+    x0=null; y0=null;
+  },{passive:true});
+
+  go(0);
+})();
+</script>
+</body>
+</html>
